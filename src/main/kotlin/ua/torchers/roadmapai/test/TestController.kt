@@ -1,6 +1,5 @@
 package ua.torchers.roadmapai.test
 
-import org.bson.types.ObjectId
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -27,7 +26,7 @@ class TestController(
         ChooseLangModel.makeRequest("hello", listOf())
         ConvertToJson.makeRequest("hello", "hello")
         RemoveExtra.makeRequest("hello")
-        RoadmapRelevanceCheck.makeRequest(RoadmapDto(ObjectId(), "hello", "hello", listOf()))
+        RoadmapRelevanceCheck.makeRequest(RoadmapDto("hello", "hello", listOf()))
 
         return null
     }

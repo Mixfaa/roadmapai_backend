@@ -4,11 +4,11 @@ import arrow.core.Either
 import arrow.core.right
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
-import ua.torchers.roadmapai.roadmap.prompt.StaticAiPromptInjectionTarget
+import ua.torchers.roadmapai.roadmap.prompt.StaticPromptInjectionTarget
 import ua.torchers.roadmapai.shared.EitherError
 
 
-object ConvertToJson : StaticAiPromptInjectionTarget("convert_to_json") {
+object ConvertToJson : StaticPromptInjectionTarget("convert_to_json") {
     private val mapper = ObjectMapper()
 
     fun makeRequest(data: String, jsonModel: String): ChatCompletionRequest {

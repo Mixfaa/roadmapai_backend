@@ -3,8 +3,7 @@ package ua.torchers.roadmapai.roadmap.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bson.types.ObjectId
 
-
-interface Roadmap {
+sealed interface Roadmap {
     val name: String
     val description: String
     val nodes: List<RmNode>

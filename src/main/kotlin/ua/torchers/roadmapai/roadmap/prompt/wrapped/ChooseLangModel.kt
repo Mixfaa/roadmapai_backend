@@ -2,9 +2,9 @@ package ua.torchers.roadmapai.roadmap.prompt.wrapped
 
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
 import ua.torchers.roadmapai.ai.ai.model.AiService
-import ua.torchers.roadmapai.roadmap.prompt.StaticAiPromptInjectionTarget
+import ua.torchers.roadmapai.roadmap.prompt.StaticPromptInjectionTarget
 
-object ChooseLangModel : StaticAiPromptInjectionTarget("choose_llm") {
+object ChooseLangModel : StaticPromptInjectionTarget("choose_llm") {
 
     fun makeRequest(request: String, services: List<AiService>): ChatCompletionRequest {
         return prompt.buildChatRequest(

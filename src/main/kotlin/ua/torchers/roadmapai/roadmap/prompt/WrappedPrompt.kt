@@ -2,7 +2,7 @@ package ua.torchers.roadmapai.roadmap.prompt
 
 import ua.torchers.roadmapai.ai.prompt.model.PromptDescription
 
-interface WrappedAiPrompt {
+interface WrappedPrompt {
     val targetPromptName: String
     var prompt: PromptDescription
 }

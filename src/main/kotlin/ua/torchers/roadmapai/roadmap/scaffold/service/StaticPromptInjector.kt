@@ -1,10 +1,10 @@
-package ua.torchers.roadmapai.roadmap.service
+package ua.torchers.roadmapai.roadmap.scaffold.service
 
 import org.reflections.Reflections
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Service
 import ua.torchers.roadmapai.ai.prompt.model.PromptUpdatedEvent
-import ua.torchers.roadmapai.roadmap.prompt.StaticPromptInjectionTarget
+import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 
 @Service
 class StaticPromptInjector : ApplicationListener<PromptUpdatedEvent> {

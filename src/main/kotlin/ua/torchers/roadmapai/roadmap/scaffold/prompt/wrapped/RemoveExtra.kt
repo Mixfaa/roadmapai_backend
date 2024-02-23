@@ -1,7 +1,7 @@
-package ua.torchers.roadmapai.roadmap.prompt.wrapped
+package ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped
 
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
-import ua.torchers.roadmapai.roadmap.prompt.StaticPromptInjectionTarget
+import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 
 
 object RemoveExtra : StaticPromptInjectionTarget("remove_extra") {

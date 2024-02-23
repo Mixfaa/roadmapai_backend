@@ -1,4 +1,4 @@
-package ua.torchers.roadmapai.roadmap.model
+package ua.torchers.roadmapai.roadmap.scaffold.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bson.types.ObjectId
@@ -66,7 +66,7 @@ data class RoadmapEntity(
     val id: ObjectId = ObjectId(),
     override val name: String,
     override val description: String,
-    override val nodes: List<RmNodeEntity>
+    override val nodes: List<RmNodeEntity>,
 ) : Roadmap {
     data class RmNodeEntity(
         val id: ObjectId = ObjectId(),

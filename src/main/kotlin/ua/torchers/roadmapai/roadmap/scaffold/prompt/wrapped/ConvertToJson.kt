@@ -1,10 +1,10 @@
-package ua.torchers.roadmapai.roadmap.prompt.wrapped
+package ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped
 
 import arrow.core.Either
 import arrow.core.right
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
-import ua.torchers.roadmapai.roadmap.prompt.StaticPromptInjectionTarget
+import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 import ua.torchers.roadmapai.shared.EitherError
 
 
@@ -17,10 +17,12 @@ object ConvertToJson : StaticPromptInjectionTarget("convert_to_json") {
     }
 
     fun <T> handleResponse(response: String, targetClass: Class<T>): EitherError<T> = Either.catch {
-        val firstBrace = response.indexOf('{')
-        val lastBrace = response.lastIndexOf('}')
+        require(!targetClass.isInterface)
 
-        val json = response.substring(firstBrace, lastBrace + 1)
+        val firstBrace = response.indexOf('{')
+        val lastBrace = response.lastIndexOf('}') + 1
+
+        val json = response.substring(firstBrace, lastBrace)
 
         return mapper.readValue(json, targetClass).right()
     }

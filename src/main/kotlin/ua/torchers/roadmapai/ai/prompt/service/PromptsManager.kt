@@ -17,13 +17,13 @@ class PromptsManager(
     private val promptsList: MutableList<PromptDescription> = CopyOnWriteArrayList()
 
     init {
-        for (promptDescription in basicConfig.prompts.values)
+        for (promptDescription in basicConfig.prompts)
         {
             eventPublisher.publishEvent(PromptUpdatedEvent(this, promptDescription))
             logger.info("New prompt: ${promptDescription.name}")
         }
 
-        promptsList.addAll(basicConfig.prompts.values)
+        promptsList.addAll(basicConfig.prompts)
     }
 
     fun listPrompts() : List<PromptDescription> {

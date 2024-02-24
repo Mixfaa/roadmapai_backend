@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 
+
 @SpringBootApplication
 @EnableReactiveMongoRepositories
 @EnableConfigurationProperties
@@ -13,7 +14,20 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
     "ua.torchers.roadmapai.ai.ai",
     "ua.torchers.roadmapai.ai.prompt"
 )
-class RoadmapaiApplication
+class RoadmapaiApplication {
+//    @Bean
+//    fun jedisConnectionFactory(): JedisConnectionFactory {
+//        return JedisConnectionFactory()
+//    }
+
+//    @Bean
+//    fun redisTemplate(connectionFactory: JedisConnectionFactory): RedisTemplate<String, Any> {
+//        val template = RedisTemplate<String, Any>()
+//        template.connectionFactory = connectionFactory
+//        template.valueSerializer = GenericToStringSerializer(Any::class.java)
+//        return template
+//    }
+}
 
 fun main(args: Array<String>) {
     runApplication<RoadmapaiApplication>(*args)

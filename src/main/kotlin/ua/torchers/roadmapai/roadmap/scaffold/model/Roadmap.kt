@@ -3,10 +3,11 @@ package ua.torchers.roadmapai.roadmap.scaffold.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.bson.types.ObjectId
 
-sealed interface Roadmap {
+interface Roadmap {
     val name: String
     val description: String
     val nodes: List<RmNode>
+    val usedService: String
 
     interface RmNode {
         val name: String
@@ -51,7 +52,9 @@ data class RoadmapDto(
     override val name: String,
     override val description: String,
     override val nodes: List<RmNodeDto>,
+    override val usedService: String
 ) : Roadmap {
+
     data class RmNodeDto(
         override val name: String,
         override val content: RmContentDto? = null,
@@ -67,6 +70,7 @@ data class RoadmapEntity(
     override val name: String,
     override val description: String,
     override val nodes: List<RmNodeEntity>,
+    override val usedService: String
 ) : Roadmap {
     data class RmNodeEntity(
         val id: ObjectId = ObjectId(),

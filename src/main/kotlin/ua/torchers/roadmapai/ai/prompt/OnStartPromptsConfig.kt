@@ -5,6 +5,6 @@ import ua.torchers.roadmapai.ai.prompt.model.PromptDescription
 
 @ConfigurationProperties("prompt")
 data class OnStartPromptsConfig(
-    val prompts: Map<String, PromptDescription>
+    val prompts: List<PromptDescription>
 )
 

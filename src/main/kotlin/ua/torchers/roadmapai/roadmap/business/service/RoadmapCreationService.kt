@@ -1,6 +1,7 @@
 package ua.torchers.roadmapai.roadmap.business.service
 
 import com.theokanning.openai.completion.chat.ChatCompletionResult
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
@@ -8,6 +9,7 @@ import ua.torchers.roadmapai.ai.ai.model.AiService
 import ua.torchers.roadmapai.ai.ai.service.AiRequestExecutionService
 import ua.torchers.roadmapai.ai.ai.service.AiServicesContainer
 import ua.torchers.roadmapai.roadmap.UnclearAiAnswerException
+import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.BuildRoadmap
@@ -15,18 +17,26 @@ import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.ChooseLangModel
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.ConvertToJson
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.RoadmapRelevanceCheck
 import ua.torchers.roadmapai.shared.EitherAny
-import ua.torchers.roadmapai.shared.EitherError
 import ua.torchers.roadmapai.shared.getOrThrow
-import kotlin.reflect.KFunction
+import java.util.*
 
 @Service
 class RoadmapCreationService(
     private val aiServicesContainer: AiServicesContainer,
-    private val aiExecutor: AiRequestExecutionService
+    private val aiExecutor: AiRequestExecutionService,
+    private val roadmapRedis: RedisTemplate<String, Roadmap>
 ) {
     private val miscAiService = aiServicesContainer.getServiceByName("misc")!!
 
-    fun createRoadmap(userDescription: String): Mono<RoadmapDto> {
+    private fun saveToCache(roadmap: RoadmapDto): RoadmapCached {
+        val uniqueId = UUID.randomUUID()
+        val roadmapCached = RoadmapCached(roadmap, uniqueId)
+
+        roadmapRedis.opsForList().leftPush(roadmapCached.id, roadmapCached)
+        return roadmapCached
+    }
+
+    fun createRoadmap(userDescription: String): Mono<RoadmapCached> {
         return Mono.fromCallable {
             val availableServices = aiServicesContainer.listServices()
 
@@ -64,8 +74,12 @@ class RoadmapCreationService(
             response = aiExecutor.executeRequest(toJsonRequest, miscAiService)
             textResponse = response.getOrThrow().choices.first().message.content
 
-            ConvertToJson.handleResponse(textResponse, RoadmapDto::class.java).getOrThrow()
+            val createdRoadmap =
+                ConvertToJson.handleResponse(textResponse, RoadmapDto::class.java, chosenService).getOrThrow()
+
+            createdRoadmap
         }
+            .map(::saveToCache)
             .publishOn(Schedulers.boundedElastic())
     }
 }

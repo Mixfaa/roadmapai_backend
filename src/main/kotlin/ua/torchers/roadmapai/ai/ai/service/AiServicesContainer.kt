@@ -25,8 +25,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
 
     init {
         val builtServices = buildList {
-            for (description in basicConfig.aiServices.values) {
-
+            for (description in basicConfig.aiServices) {
                 val service = buildService(description).getOrNull() ?: continue
 
                 this@buildList.add(service)

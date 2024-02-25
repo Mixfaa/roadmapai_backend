@@ -69,13 +69,13 @@ class RoadmapCreationService(
             response = aiExecutor.executeRequest(buildRoadmapRequest, chosenService)
             val roadmapString = response.getOrThrow().choices.first().message.content
 
-            val checkRelevanceRequest = RoadmapRelevanceCheck.makeRequest(roadmapString)
-
-            response = aiExecutor.executeRequest(checkRelevanceRequest, chosenService)
-            textResponse = response.getOrThrow().choices.first().message.content
-
-            val isRelevant = RoadmapRelevanceCheck.handleResponse(textResponse).getOrThrow()
-            if (!isRelevant) throw UnclearAiAnswerException("Lang model $chosenService generated irrelevant roadmap $roadmapString")
+//            val checkRelevanceRequest = RoadmapRelevanceCheck.makeRequest(roadmapString)
+//
+//            response = aiExecutor.executeRequest(checkRelevanceRequest, chosenService)
+//            textResponse = response.getOrThrow().choices.first().message.content
+//
+//            val isRelevant = RoadmapRelevanceCheck.handleResponse(textResponse).getOrThrow()
+//            if (!isRelevant) throw UnclearAiAnswerException("Lang model $chosenService generated irrelevant roadmap $roadmapString")
 
             val toJsonRequest = ConvertToJson.makeRequest(roadmapString, Roadmap.JSON_SCHEMA)
 

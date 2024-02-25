@@ -4,7 +4,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.GenericToStringSerializer
+import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 
 
 @SpringBootApplication
@@ -15,18 +20,18 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
     "ua.torchers.roadmapai.ai.prompt"
 )
 class RoadmapaiApplication {
-//    @Bean
-//    fun jedisConnectionFactory(): JedisConnectionFactory {
-//        return JedisConnectionFactory()
-//    }
+    @Bean
+    fun jedisConnectionFactory(): JedisConnectionFactory {
+        return JedisConnectionFactory()
+    }
 
-//    @Bean
-//    fun redisTemplate(connectionFactory: JedisConnectionFactory): RedisTemplate<String, Any> {
-//        val template = RedisTemplate<String, Any>()
-//        template.connectionFactory = connectionFactory
-//        template.valueSerializer = GenericToStringSerializer(Any::class.java)
-//        return template
-//    }
+    @Bean
+    fun redisTemplate(connectionFactory: JedisConnectionFactory): RedisTemplate<String, RoadmapCached> {
+        val template = RedisTemplate<String, RoadmapCached>()
+        template.connectionFactory = connectionFactory
+        template.valueSerializer = GenericToStringSerializer(RoadmapCached::class.java)
+        return template
+    }
 }
 
 fun main(args: Array<String>) {

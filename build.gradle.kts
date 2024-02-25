@@ -26,6 +26,7 @@ dependencies {
 
     implementation("com.theokanning.openai-gpt3-java:service:0.18.2")
     implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+    implementation("redis.clients:jedis:5.1.0")
 
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")

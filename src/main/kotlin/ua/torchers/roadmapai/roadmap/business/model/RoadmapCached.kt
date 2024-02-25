@@ -9,7 +9,7 @@ data class RoadmapCached(
     override val description: String,
     override val nodes: List<RoadmapDto.RmNodeDto>,
     override val usedService: String,
-    val id: String
+    val id: String,
 ) : Roadmap {
     constructor(dto: RoadmapDto, id: UUID) : this(dto.name, dto.description, dto.nodes, dto.usedService, id.toString())
 }

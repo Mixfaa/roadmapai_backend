@@ -64,22 +64,3 @@ data class RoadmapDto(
         override val content: String,
     ) : Roadmap.RmContent
 }
-
-data class RoadmapEntity(
-    val id: ObjectId = ObjectId(),
-    override val name: String,
-    override val description: String,
-    override val nodes: List<RmNodeEntity>,
-    override val usedService: String
-) : Roadmap {
-    data class RmNodeEntity(
-        val id: ObjectId = ObjectId(),
-        override val name: String,
-        override val content: RmContentEntity?
-    ) : Roadmap.RmNode
-
-    data class RmContentEntity(
-        val id: ObjectId = ObjectId(),
-        override val content: String
-    ) : Roadmap.RmContent
-}

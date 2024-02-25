@@ -8,8 +8,10 @@ import reactor.core.scheduler.Schedulers
 import ua.torchers.roadmapai.ai.ai.model.AiService
 import ua.torchers.roadmapai.ai.ai.service.AiRequestExecutionService
 import ua.torchers.roadmapai.ai.ai.service.AiServicesContainer
+import ua.torchers.roadmapai.roadmap.NoCachedValue
 import ua.torchers.roadmapai.roadmap.UnclearAiAnswerException
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
+import ua.torchers.roadmapai.roadmap.business.model.RoadmapEntity
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.BuildRoadmap
@@ -24,9 +26,17 @@ import java.util.*
 class RoadmapCreationService(
     private val aiServicesContainer: AiServicesContainer,
     private val aiExecutor: AiRequestExecutionService,
-    private val roadmapRedis: RedisTemplate<String, Roadmap>
+    private val roadmapRedis: RedisTemplate<String, RoadmapCached>,
+    private val roadmapRepo: RoadmapRepo
 ) {
-    private val miscAiService = aiServicesContainer.getServiceByName("misc")!!
+    private val miscAiService: AiService = aiServicesContainer.getServiceByName("misc")!!
+
+    fun saveFromCache(id: String): Mono<RoadmapEntity> {
+        val roadmapCached = roadmapRedis.opsForList().leftPop(id)
+            ?: return Mono.error(NoCachedValue("Can`t find cached roadmap with id $id"))
+
+        return roadmapRepo.save(RoadmapEntity(roadmapCached))
+    }
 
     private fun saveToCache(roadmap: RoadmapDto): RoadmapCached {
         val uniqueId = UUID.randomUUID()
@@ -40,14 +50,12 @@ class RoadmapCreationService(
         return Mono.fromCallable {
             val availableServices = aiServicesContainer.listServices()
 
-            val chosenService: AiService
+            var chosenService: AiService = miscAiService
 
             var response: EitherAny<ChatCompletionResult>
             var textResponse: String
 
-            if (availableServices.size == 1)
-                chosenService = miscAiService
-            else {
+            if (availableServices.size != 1) {
                 val chooseLLMRequest = ChooseLangModel.makeRequest(userDescription, availableServices)
                 response = aiExecutor.executeRequest(chooseLLMRequest, miscAiService)
                 textResponse = response.getOrThrow().choices.first().message.content

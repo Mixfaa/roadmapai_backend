@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "gradle",
+			"id": "c:\\Users\\mishu\\programming_projects\\java_kotlin\\roadmapai_backendbootRunroadmapai",
+			"script": "bootRun",
+			"description": "Runs this project as a Spring Boot application.",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"project": "roadmapai",
+			"buildFile": "C:\\Users\\mishu\\programming_projects\\java_kotlin\\roadmapai_backend\\build.gradle.kts",
+			"rootProject": "roadmapai",
+			"projectFolder": "c:\\Users\\mishu\\programming_projects\\java_kotlin\\roadmapai_backend",
+			"workspaceFolder": "c:\\Users\\mishu\\programming_projects\\java_kotlin\\roadmapai_backend",
+			"args": "",
+			"javaDebug": false,
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "gradle: bootRun"
+		}
+	]
+}

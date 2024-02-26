@@ -10,7 +10,7 @@ interface Roadmap {
     val usedService: String
 
     interface RmNode {
-        val name: String
+        val description: String
         val content: RmContent?
     }
 
@@ -23,7 +23,7 @@ interface Roadmap {
             append("Roadmap: ").appendLine(name)
             append("Description: ").appendLine(description)
 
-            for (node in nodes) append(" * ").appendLine(node.name)
+            for (node in nodes) append(" * ").appendLine(node.description)
             appendLine("Roadmap end")
             appendLine()
         }
@@ -41,7 +41,7 @@ interface Roadmap {
             
             RmNode json schema:
             {
-                "name" // string
+                "descriptio" // string
                 "content" // String (optionally)
             }
         """
@@ -56,7 +56,7 @@ data class RoadmapDto(
 ) : Roadmap {
 
     data class RmNodeDto(
-        override val name: String,
+        override val description: String,
         override val content: RmContentDto? = null,
     ) : Roadmap.RmNode
 

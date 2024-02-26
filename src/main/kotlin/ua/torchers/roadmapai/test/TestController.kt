@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
-import ua.torchers.roadmapai.roadmap.business.service.RoadmapCreationService
+import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
+import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
 
 
 @RestController
@@ -15,7 +16,7 @@ class TestController(
 ) {
 
     @GetMapping("/roadmap")
-    fun getRoadmap(learningTarget: String): Mono<RoadmapCached> {
+    fun getRoadmap(learningTarget: String): Mono<out Roadmap> {
         return roadmapCreationService.createRoadmap(learningTarget)
     }
 

@@ -9,12 +9,17 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.GenericToStringSerializer
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 
 
 @SpringBootApplication
+@EnableScheduling
 @EnableReactiveMongoRepositories
 @EnableConfigurationProperties
+@EnableMethodSecurity
 @ConfigurationPropertiesScan(
     "ua.torchers.roadmapai.ai.ai",
     "ua.torchers.roadmapai.ai.prompt"

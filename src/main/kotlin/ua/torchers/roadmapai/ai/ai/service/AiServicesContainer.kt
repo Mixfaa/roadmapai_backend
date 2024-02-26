@@ -7,6 +7,7 @@ import com.theokanning.openai.client.OpenAiApi
 import com.theokanning.openai.service.OpenAiService
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -84,6 +85,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
         return AiService(description, CopyOnWriteArrayList(endpoints)).right()
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     fun addService(description: AiServiceConfig): EitherError<AiService> {
         val serviceEitherError = buildService(description)
 
@@ -95,7 +97,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
 
         return serviceEitherError
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     fun removeService(serviceName: String): EitherError<String> {
         val serviceIterator = aiServices.iterator()
 
@@ -114,7 +116,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
 
         return NoServiceException(serviceName).left()
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     fun removeServiceEndpoint(serviceName: String, endpointUrl: String): EitherError<String> {
         val service =
             aiServices.find { it.equalsByName(serviceName) } ?: return NoServiceException(serviceName).left()
@@ -139,7 +141,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
         return NoEndpointException(endpointUrl).left()
 
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     fun addServiceEndpoint(
         serviceName: String,
         endpointDesc: AiServiceConfig.EndpointConfig

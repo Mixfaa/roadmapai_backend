@@ -1,6 +1,7 @@
 package ua.torchers.roadmapai.roadmap.business.model
 
 import org.bson.types.ObjectId
+import ua.torchers.roadmapai.account.model.Account
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
 
 data class RoadmapEntity(
@@ -8,14 +9,16 @@ data class RoadmapEntity(
     override val name: String,
     override val description: String,
     override val nodes: List<RmNodeEntity>,
-    override val usedService: String
+    override val usedService: String,
+    val owner: Account
 ) : Roadmap {
-    constructor(roadmap: Roadmap) : this(
+    constructor(roadmap: Roadmap, owner: Account) : this(
         ObjectId(),
         roadmap.name,
         roadmap.description,
         roadmap.nodes.map(::RmNodeEntity),
-        roadmap.usedService
+        roadmap.usedService,
+        owner
     )
 
     data class RmNodeEntity(

@@ -18,20 +18,6 @@ import ua.torchers.roadmapai.shared.EitherError
 
 /*
 
-    fun saveFromCache(id: String): Mono<RoadmapEntity> {
-        val roadmapCached = roadmapRedis.opsForList().leftPop(id)
-            ?: return Mono.error(NoCachedValue("Can`t find cached roadmap with id $id"))
-
-        return roadmapRepo.save(RoadmapEntity(roadmapCached))
-    }
-
-    private fun saveToCache(roadmap: RoadmapDto): RoadmapCached {
-        val uniqueId = UUID.randomUUID()
-        val roadmapCached = RoadmapCached(roadmap, uniqueId)
-
-        roadmapRedis.opsForList().leftPush(roadmapCached.id, roadmapCached)
-        return roadmapCached
-    }
 
  */
 

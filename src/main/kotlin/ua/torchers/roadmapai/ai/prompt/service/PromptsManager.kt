@@ -2,6 +2,7 @@ package ua.torchers.roadmapai.ai.prompt.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Component
 import ua.torchers.roadmapai.ai.prompt.OnStartPromptsConfig
 import ua.torchers.roadmapai.ai.prompt.model.PromptDescription
@@ -34,6 +35,7 @@ class PromptsManager(
         return promptsList.find { it.equalsByName(name) }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     fun patchPrompt(newPrompt: PromptDescription) {
         eventPublisher.publishEvent(PromptUpdatedEvent(this, newPrompt))
 

@@ -9,10 +9,12 @@ import org.springframework.security.core.userdetails.UserDetails
 @Document("account")
 data class Account(
     @JvmField @Id val username: String,
-    @JvmField @field:JsonIgnore val password: String
+    @JvmField @field:JsonIgnore val password: String,
+    @JvmField val authorities: MutableCollection<out GrantedAuthority>
 ) : UserDetails {
+    constructor(username: String, password: String, authority: GrantedAuthority) : this(username,password, mutableListOf(authority))
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = DEFAULT_AUTHORITIES
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = authorities
     override fun getPassword(): String = password
     override fun getUsername(): String = username
     override fun isAccountNonExpired(): Boolean = true
@@ -20,9 +22,4 @@ data class Account(
     override fun isCredentialsNonExpired(): Boolean = true
     override fun isEnabled(): Boolean = true
 
-    companion object {
-        private val DEFAULT_AUTHORITIES = mutableListOf(
-            GrantedAuthority { "user" }
-        )
-    }
 }

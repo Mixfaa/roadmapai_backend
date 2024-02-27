@@ -17,8 +17,8 @@ class AccountService(
     fun register(request: RegisterRequest): Mono<Account> {
         return accountRepo.existsById(request.username)
             .flatMap { exists ->
-                if (exists) return@flatMap Mono.error(UsernameTakenException(request.username))
-                return@flatMap accountRepo.save(Account(request.username, request.username, request.authorities))
+                return@flatMap if (exists) Mono.error(UsernameTakenException(request.username))
+                else accountRepo.save(Account(request.username, request.username, request.authorities))
             }
 
     }

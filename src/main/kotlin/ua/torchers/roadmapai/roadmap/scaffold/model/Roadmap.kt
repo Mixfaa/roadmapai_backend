@@ -41,7 +41,7 @@ interface Roadmap {
             
             RmNode json schema:
             {
-                "descriptio" // string
+                "description" // string
                 "content" // String (optionally)
             }
         """

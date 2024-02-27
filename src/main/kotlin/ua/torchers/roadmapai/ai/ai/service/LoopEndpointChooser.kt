@@ -19,7 +19,6 @@ class LoopEndpointChooser : EndpointChooser, ApplicationListener<AiServiceEvent>
             if (newIndex >= service2.endpoints.size)
                 newIndex = 0
 
-
             return@compute newIndex
         }
         return service.endpoints[index ?: 0]

@@ -8,7 +8,6 @@ import ua.torchers.roadmapai.ai.prompt.OnStartPromptsConfig
 import ua.torchers.roadmapai.ai.prompt.model.PromptDescription
 import ua.torchers.roadmapai.ai.prompt.model.PromptUpdatedEvent
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.logging.Logger
 
 @Component
 class PromptsManager(
@@ -18,8 +17,7 @@ class PromptsManager(
     private val promptsList: MutableList<PromptDescription> = CopyOnWriteArrayList()
 
     init {
-        for (promptDescription in basicConfig.prompts)
-        {
+        for (promptDescription in basicConfig.prompts) {
             eventPublisher.publishEvent(PromptUpdatedEvent(this, promptDescription))
             logger.info("New prompt: ${promptDescription.name}")
         }
@@ -27,7 +25,7 @@ class PromptsManager(
         promptsList.addAll(basicConfig.prompts)
     }
 
-    fun listPrompts() : List<PromptDescription> {
+    fun listPrompts(): List<PromptDescription> {
         return promptsList
     }
 

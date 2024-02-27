@@ -17,6 +17,7 @@ import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.BuildRoadmap
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.ChooseLangModel
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped.ConvertToJson
 import ua.torchers.roadmapai.shared.EitherError
+import ua.torchers.roadmapai.shared.firstChoiceText
 
 @Service
 class RoadmapCreationService(
@@ -37,9 +38,11 @@ class RoadmapCreationService(
 
                 if (availableServices.size != 1) {
                     val chooseLLMRequest = ChooseLangModel.makeRequest(userDescription, availableServices)
+
                     response = aiExecutor.executeRequest(chooseLLMRequest, miscAiService)
+
                     textResponse = response.getOrElse { return@fromCallable response }
-                        .choices.firstOrNull()?.message?.content
+                        .firstChoiceText()
                         ?: return@fromCallable NoChoicesFromAi(miscAiService).left()
 
                     chosenService = ChooseLangModel.handleResponse(textResponse, availableServices)
@@ -51,7 +54,7 @@ class RoadmapCreationService(
                 response = aiExecutor.executeRequest(buildRoadmapRequest, chosenService)
 
                 val roadmapString = response.getOrElse { return@fromCallable response }
-                    .choices.firstOrNull()?.message?.content
+                    .firstChoiceText()
                     ?: return@fromCallable NoChoicesFromAi(chosenService).left()
 
 
@@ -59,7 +62,7 @@ class RoadmapCreationService(
 
                 response = aiExecutor.executeRequest(toJsonRequest, miscAiService)
                 textResponse = response.getOrElse { return@fromCallable response }
-                    .choices.firstOrNull()?.message?.content
+                    .firstChoiceText()
                     ?: return@fromCallable NoChoicesFromAi(miscAiService).left()
 
                 ConvertToJson.handleResponse(textResponse, RoadmapDto::class.java, chosenService)

@@ -1,5 +1,6 @@
 package ua.torchers.roadmapai.roadmap.business.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.security.access.prepost.PreAuthorize
@@ -13,20 +14,22 @@ import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapEntity
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
 import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
+import java.time.Duration
 import java.util.*
 
 @Service
 class RoadmapService(
+    @Value("\${roadmap.cache.expiration}") private val expirationInMinutes: Long,
     private val roadmapRepo: RoadmapRepository,
     private val roadmapCache: RedisTemplate<String, RoadmapCached>,
     private val rmCreationService: RoadmapCreationService
 ) {
+    private val cacheExpiration = Duration.ofMinutes(expirationInMinutes)
+
     @PreAuthorize("#requester.username == authentication.name")
     fun deleteRoadmap(id: String, requester: Account): Mono<Void> {
         return roadmapRepo.findById(id).flatMap {
-            return@flatMap if (it.owner != requester) Mono.error(
-                AccessException(requester, it)
-            )
+            if (it.owner != requester) Mono.error(AccessException(requester, it))
             else roadmapRepo.delete(it)
         }
     }
@@ -44,11 +47,10 @@ class RoadmapService(
         return roadmapRepo
             .findById(id)
             .flatMap {
-                return@flatMap if (it.owner != requester) Mono.error(AccessException(requester, it))
+                if (it.owner != requester) Mono.error(AccessException(requester, it))
                 else Mono.just(it)
             }
     }
-
 
     @PreAuthorize("#requester.username == authentication.name")
     fun getMyRoadmaps(requester: Account, pageable: Pageable): Flux<RoadmapEntity> {
@@ -60,12 +62,11 @@ class RoadmapService(
         val roadmapCached = RoadmapCached(roadmap, uniqueId)
 
         roadmapCache.opsForList().leftPush(roadmapCached.id, roadmapCached)
+        roadmapCache.opsForList().operations.expire(roadmapCached.id, cacheExpiration)
         return roadmapCached
     }
-
 
     fun requestRoadmap(learningTarget: String): Mono<RoadmapCached> {
         return rmCreationService.createRoadmap(learningTarget).map(::saveToCache)
     }
-
 }

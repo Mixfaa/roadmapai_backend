@@ -10,16 +10,23 @@ import org.springframework.security.core.userdetails.UserDetails
 data class Account(
     @JvmField @Id val username: String,
     @JvmField @field:JsonIgnore val password: String,
-    @JvmField val authorities: MutableCollection<out GrantedAuthority>
+    val role: Role
 ) : UserDetails {
-    constructor(username: String, password: String, authority: GrantedAuthority) : this(username,password, mutableListOf(authority))
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = authorities
-    override fun getPassword(): String = password
     override fun getUsername(): String = username
+
+    @JsonIgnore
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = role.grantedAuthorities
+    @JsonIgnore
+    override fun getPassword(): String = password
+    @JsonIgnore
     override fun isAccountNonExpired(): Boolean = true
+    @JsonIgnore
     override fun isAccountNonLocked(): Boolean = true
+
+    @JsonIgnore
     override fun isCredentialsNonExpired(): Boolean = true
+
+    @JsonIgnore
     override fun isEnabled(): Boolean = true
 
 }

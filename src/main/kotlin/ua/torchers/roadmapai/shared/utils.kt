@@ -6,7 +6,14 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 typealias EitherError<T> = Either<Throwable, T>
-typealias EitherAny<T> = Either<Any, T>
+
+inline fun <R> runOrNull(block: () -> R): R? {
+    return try {
+        block()
+    } catch (ex: Exception) {
+        null
+    }
+}
 
 fun <T> EitherError<T>.getOrThrow(): T {
     return this.getOrElse { throw it }

@@ -23,12 +23,12 @@ data class RoadmapEntity(
 
     data class RmNodeEntity(
         val id: ObjectId = ObjectId(),
-        override val name: String,
+        override val description: String,
         override val content: RmContentEntity?
     ) : Roadmap.RmNode {
         constructor(entity: Roadmap.RmNode) : this(
             ObjectId(),
-            entity.name,
+            entity.description,
             entity.content?.let(::RmContentEntity)
         )
     }

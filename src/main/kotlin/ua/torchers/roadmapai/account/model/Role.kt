@@ -10,8 +10,5 @@ enum class Role(
 
     val grantedAuthorities: MutableList<SimpleGrantedAuthority> =
         permissions.mapTo(mutableListOf()) { SimpleGrantedAuthority(it.name) }
-            .also {
-                it.add(SimpleGrantedAuthority("ROLE_${this.name}"))
-            }
-
+            .also { it.add(SimpleGrantedAuthority("ROLE_${this.name}")) }
 }

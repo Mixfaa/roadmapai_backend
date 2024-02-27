@@ -28,9 +28,9 @@ class AccountService(
                 return@flatMap if (exists) Mono.error(UsernameTakenException(request.username))
                 else accountRepo.save(
                     Account(
-                        request.username,
-                        passwordEncoder.encode(request.password),
-                        runOrNull { Role.valueOf(request.role) } ?: Role.USER
+                        username = request.username,
+                        password = passwordEncoder.encode(request.password),
+                        role = runOrNull { Role.valueOf(request.role) } ?: Role.USER
                     )
                 )
             }

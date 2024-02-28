@@ -36,6 +36,7 @@ class RoadmapCreationService(
                 var response: EitherError<ChatCompletionResult>
                 var textResponse: String
 
+                // select llm for generating roadmap
                 if (availableServices.size != 1) {
                     val chooseLLMRequest = ChooseLangModel.makeRequest(userDescription, availableServices)
 
@@ -49,6 +50,7 @@ class RoadmapCreationService(
                         ?: miscAiService
                 }
 
+                // generating roadmap
                 val buildRoadmapRequest = BuildRoadmap.makeRequest(userDescription)
 
                 response = aiExecutor.executeRequest(buildRoadmapRequest, chosenService)
@@ -57,7 +59,7 @@ class RoadmapCreationService(
                     .firstChoiceText()
                     ?: return@fromCallable NoChoicesFromAi(chosenService).left()
 
-
+                // converting roadmap to json
                 val toJsonRequest = ConvertToJson.makeRequest(roadmapString, Roadmap.JSON_SCHEMA)
 
                 response = aiExecutor.executeRequest(toJsonRequest, miscAiService)

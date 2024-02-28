@@ -116,6 +116,7 @@ class AiServicesContainer(basicConfig: OnStartAiServicesConfig, private val even
 
         return NoServiceException(serviceName).left()
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     fun removeServiceEndpoint(serviceName: String, endpointUrl: String): EitherError<String> {
         val service =

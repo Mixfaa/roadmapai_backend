@@ -9,11 +9,13 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ua.torchers.roadmapai.account.model.Account
 import ua.torchers.roadmapai.roadmap.AccessException
+import ua.torchers.roadmapai.roadmap.LargePageSizeException
 import ua.torchers.roadmapai.roadmap.NoCachedValue
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapEntity
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
 import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
+import ua.torchers.roadmapai.shared.isNotInBound
 import java.time.Duration
 import java.util.*
 
@@ -54,7 +56,13 @@ class RoadmapService(
 
     @PreAuthorize("#requester.username == authentication.name")
     fun getMyRoadmaps(requester: Account, pageable: Pageable): Flux<RoadmapEntity> {
+        if (pageable.isNotInBound()) return Flux.error(LargePageSizeException(pageable))
         return roadmapRepo.findByOwner(requester, pageable)
+    }
+
+    fun searchForRoadmaps(query: String, pageable: Pageable): Flux<RoadmapEntity> {
+        if (pageable.isNotInBound()) return Flux.error(LargePageSizeException(pageable))
+        return roadmapRepo.findAllByText(query, pageable)
     }
 
     private fun saveToCache(roadmap: RoadmapDto): RoadmapCached {

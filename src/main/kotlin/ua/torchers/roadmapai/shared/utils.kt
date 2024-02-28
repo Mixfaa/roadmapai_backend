@@ -5,6 +5,7 @@ import arrow.core.getOrElse
 import com.theokanning.openai.completion.chat.ChatCompletionResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Pageable
 
 typealias EitherError<T> = Either<Throwable, T>
 
@@ -16,18 +17,10 @@ inline fun <R> runOrNull(block: () -> R): R? {
     }
 }
 
-fun <T> EitherError<T>.getOrThrow(): T {
-    return this.getOrElse { throw it }
-}
+const val MAX_PAGE_SIZE = 15
 
-private val LOGGER = LoggerFactory.getLogger("Utils logger")
-
-fun Throwable.logError(logger: Logger) {
-    logger.error(this.message)
-}
-
-fun Throwable.logError(src: Any) {
-    LOGGER.error("{} Error: {}", src, this.message)
+fun Pageable.isNotInBound(maxPageSize: Int = MAX_PAGE_SIZE) : Boolean {
+    return this.pageSize !in 1..maxPageSize
 }
 
 fun ChatCompletionResult.firstChoiceText(): String? = this.choices.firstOrNull()?.message?.content

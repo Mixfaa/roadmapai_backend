@@ -16,9 +16,13 @@ import ua.torchers.roadmapai.roadmap.scaffold.model.TestDto
 import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
 import ua.torchers.roadmapai.roadmap.scaffold.service.TestCreationService
 import ua.torchers.roadmapai.shared.isNotInBound
+import ua.torchers.roadmapai.shared.orRoadmapNotFound
 import java.time.Duration
 import java.util.*
 
+/**
+ * Or simply facade
+ */
 @Service
 class RoadmapService(
     @Value("\${roadmap.cache.expiration}") private val expirationInMinutes: Long,
@@ -31,10 +35,12 @@ class RoadmapService(
 
     @PreAuthorize("#requester.username == authentication.name")
     fun deleteRoadmap(id: String, requester: Account): Mono<Void> {
-        return roadmapRepo.findById(id).flatMap {
-            if (it.owner != requester) Mono.error(AccessException(requester, it))
-            else roadmapRepo.delete(it)
-        }
+        return roadmapRepo.findById(id)
+            .orRoadmapNotFound()
+            .flatMap {
+                if (it.owner != requester) Mono.error(AccessException(requester, it))
+                else roadmapRepo.delete(it)
+            }
     }
 
     @PreAuthorize("#requester.username == authentication.name")
@@ -59,12 +65,12 @@ class RoadmapService(
     @PreAuthorize("#requester.username == authentication.name")
     fun getMyRoadmaps(requester: Account, pageable: Pageable): Flux<RoadmapEntity> {
         if (pageable.isNotInBound()) return Flux.error(LargePageSizeException(pageable))
-        return roadmapRepo.findByOwner(requester, pageable)
+        return roadmapRepo.findByOwner(requester, pageable).orRoadmapNotFound()
     }
 
     fun searchForRoadmaps(query: String, pageable: Pageable): Flux<RoadmapEntity> {
         if (pageable.isNotInBound()) return Flux.error(LargePageSizeException(pageable))
-        return roadmapRepo.findAllByText(query, pageable)
+        return roadmapRepo.findAllByText(query, pageable).orRoadmapNotFound()
     }
 
     private fun saveToCache(roadmap: RoadmapDto): RoadmapCached {
@@ -82,7 +88,7 @@ class RoadmapService(
 
     fun requestTest(roadmapId: String, nodeId: String): Mono<TestDto> {
         return roadmapRepo.findById(roadmapId)
-            .switchIfEmpty(Mono.error(RoadmapNotFound(roadmapId)))
+            .orRoadmapNotFound()
             .flatMap { roadmap ->
                 val node = roadmap.nodes.find { it.id.toHexString() == nodeId }
                     ?: return@flatMap Mono.error(RoadmapNodeNotFound(roadmap, nodeId))

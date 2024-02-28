@@ -1,7 +1,9 @@
 package ua.torchers.roadmapai.account.model
 
+import ua.torchers.roadmapai.shared.NotBlankOrNull
+
 data class RegisterRequest(
-    val username: String,
-    val password: String,
-    val role: String
+    @field:NotBlankOrNull val username: String,
+    @field:NotBlankOrNull val password: String,
+    @field:NotBlankOrNull val role: String
 )

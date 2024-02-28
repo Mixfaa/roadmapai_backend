@@ -25,60 +25,59 @@ class RoadmapCreationService(
 ) {
     private val miscAiService: AiService = aiServicesContainer.getServiceByName("misc")!!
 
-    fun createRoadmap(userDescription: String): Mono<RoadmapDto> {
-        return Mono.fromCallable {
-            val availableServices = aiServicesContainer.listServices()
+    fun createRoadmap(userDescription: String): Mono<RoadmapDto> = Mono.fromCallable {
+        val availableServices = aiServicesContainer.listServices()
 
-            var chosenService: AiService = miscAiService
+        var chosenService: AiService = miscAiService
 
-            var response: EitherError<ChatCompletionResult>
-            var textResponse: String
+        var response: EitherError<ChatCompletionResult>
+        var textResponse: String
 
-            // select llm for generating roadmap
-            if (availableServices.size != 1) {
-                val chooseLLMRequest = ChooseLangModel.makeRequest(userDescription, availableServices)
+        // select llm for generating roadmap
+        if (availableServices.size != 1) {
+            val chooseLLMRequest = ChooseLangModel.makeRequest(userDescription, availableServices)
 
-                response = aiExecutor.executeRequest(chooseLLMRequest, miscAiService)
+            response = aiExecutor.executeRequest(chooseLLMRequest, miscAiService)
 
-                textResponse = response.getOrElse { return@fromCallable response }
-                    .firstChoiceText()
-                    ?: return@fromCallable NoChoicesFromAi(miscAiService).left()
-
-                chosenService = ChooseLangModel.handleResponse(textResponse, availableServices)
-                    ?: miscAiService
-            }
-
-            // generating roadmap
-            val buildRoadmapRequest = BuildRoadmap.makeRequest(userDescription)
-
-            response = aiExecutor.executeRequest(buildRoadmapRequest, chosenService)
-
-            val roadmapString = response.getOrElse { return@fromCallable response }
-                .firstChoiceText()
-                ?: return@fromCallable NoChoicesFromAi(chosenService).left()
-
-            // converting roadmap to json
-            val toJsonRequest = ConvertToJson.makeRequest(roadmapString, Roadmap.JSON_SCHEMA)
-
-            response = aiExecutor.executeRequest(toJsonRequest, miscAiService)
             textResponse = response.getOrElse { return@fromCallable response }
                 .firstChoiceText()
                 ?: return@fromCallable NoChoicesFromAi(miscAiService).left()
 
-            return@fromCallable ConvertToJson.parseRoadmap(textResponse, chosenService)
+            chosenService = ChooseLangModel.handleResponse(textResponse, availableServices)
+                ?: miscAiService
         }
-            .flatMap {
-                it.fold(
-                    { error ->
-                        Mono.error(error)
-                    },
-                    { roadmap ->
-                        when (roadmap) {
-                            is RoadmapDto -> Mono.just(roadmap)
-                            else -> Mono.error(IllegalArgumentException("Not a RoadmapDto object, but (${roadmap::class})"))
-                        }
-                    })
-            }
-            .publishOn(Schedulers.boundedElastic())
+
+        // generating roadmap
+        val buildRoadmapRequest = BuildRoadmap.makeRequest(userDescription)
+
+        response = aiExecutor.executeRequest(buildRoadmapRequest, chosenService)
+
+        val roadmapString = response.getOrElse { return@fromCallable response }
+            .firstChoiceText()
+            ?: return@fromCallable NoChoicesFromAi(chosenService).left()
+
+        // converting roadmap to json
+        val toJsonRequest = ConvertToJson.makeRequest(roadmapString, Roadmap.JSON_SCHEMA)
+
+        response = aiExecutor.executeRequest(toJsonRequest, miscAiService)
+        textResponse = response.getOrElse { return@fromCallable response }
+            .firstChoiceText()
+            ?: return@fromCallable NoChoicesFromAi(miscAiService).left()
+
+        return@fromCallable ConvertToJson.parseRoadmap(textResponse, chosenService)
     }
+        .flatMap {
+            it.fold(
+                { error ->
+                    Mono.error(error)
+                },
+                { roadmap ->
+                    when (roadmap) {
+                        is RoadmapDto -> Mono.just(roadmap)
+                        else -> Mono.error(IllegalArgumentException("Not a RoadmapDto object, but (${roadmap::class})"))
+                    }
+                })
+        }
+        .publishOn(Schedulers.boundedElastic())
+
 }

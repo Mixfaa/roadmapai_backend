@@ -1,12 +1,14 @@
 package ua.torchers.roadmapai.roadmap
 
-import arrow.core.identity
 import org.springframework.data.domain.Pageable
 import ua.torchers.roadmapai.account.model.Account
 import ua.torchers.roadmapai.ai.ai.model.AiService
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
 import ua.torchers.roadmapai.shared.MAX_PAGE_SIZE
 
+/**
+ * Get rid of most of this exceptions and replace them with NotFoundException
+ */
 class UnclearAiAnswerException(msg: String) : Exception(msg)
 
 class NoCachedValue(msg: String) : Exception(msg)
@@ -21,7 +23,10 @@ class LargePageSizeException(pageable: Pageable, maxPageSize: Int = MAX_PAGE_SIZ
 class JsonMappingException(aiAnswer: String, objectClass: Class<*>) :
     Exception("Can`t map  answer to ${objectClass.name}, ai answer: $aiAnswer")
 
-class RoadmapContentNotGenerated(roadmap: Roadmap, node: Roadmap.RmNode) : Exception("Roadmap`s ${roadmap.name} $node don`t have content yet")
+class RoadmapContentNotGenerated(roadmap: Roadmap, node: Roadmap.RmNode) :
+    Exception("Roadmap`s ${roadmap.name} $node don`t have content yet")
 
-class RoadmapNodeNotFound(roadmap: Roadmap, nodeId:String) : Exception("Roadmap ${roadmap.name} don`t have node with id $nodeId")
-class RoadmapNotFound(roadmapId:String) : Exception("No roadmap with id ${roadmapId}")
+class RoadmapNodeNotFound(roadmap: Roadmap, nodeId: String) :
+    Exception("Roadmap ${roadmap.name} don`t have node with id $nodeId")
+
+class RoadmapNotFound(roadmapId: String) : Exception("No roadmap with id ${roadmapId}")

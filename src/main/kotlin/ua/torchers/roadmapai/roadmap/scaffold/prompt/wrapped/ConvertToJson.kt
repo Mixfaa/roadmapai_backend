@@ -1,11 +1,17 @@
 package ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
 import ua.torchers.roadmapai.ai.ai.model.AiService
+import ua.torchers.roadmapai.roadmap.JsonMappingException
+import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
+import ua.torchers.roadmapai.roadmap.scaffold.model.Test
+import ua.torchers.roadmapai.roadmap.scaffold.model.TestDto
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 import ua.torchers.roadmapai.shared.EitherError
 import java.util.*
@@ -19,22 +25,34 @@ object ConvertToJson : StaticPromptInjectionTarget("convert_to_json") {
             .buildChatRequest(mapOf("(DATA)" to data, "(JSON_MODEL)" to jsonModel))
     }
 
-    fun <T> handleResponse(response: String, targetClass: Class<T>, usedService: AiService): EitherError<T> =
-        Either.catch {
-            require(!targetClass.isInterface)
+    private fun isolateJson(response: String): String? {
+        val firstBrace = response.indexOf('{')
+        if (firstBrace == -1) return null
 
-            val firstBrace = response.indexOf('{')
-            val lastBrace = response.lastIndexOf('}') + 1
+        val lastBrace = response.lastIndexOf('}') + 1
+        if (lastBrace == 0) return null
 
-            val json = response.substring(firstBrace, lastBrace)
+        return response.substring(firstBrace, lastBrace)
+    }
 
-            val jsonTree = mapper.readTree(json)
-            val props = jsonTree.properties()
+    fun parseRoadmap(response: String, usedService: AiService): EitherError<RoadmapDto> {
+        val json = isolateJson(response)
+            ?: return JsonMappingException(response, RoadmapDto::class.java).left()
 
-            props.add(AbstractMap.SimpleEntry("usedService", TextNode(usedService.name)) as Map.Entry<String, JsonNode>?)
+        val jsonTree = mapper.readTree(json)
+        val props = jsonTree.properties()
 
-            mapper.readValue(jsonTree.toPrettyString(), targetClass)
-        }
+        props.add(AbstractMap.SimpleEntry("usedService", TextNode(usedService.name)) as Map.Entry<String, JsonNode>?)
+
+        return mapper.readValue(jsonTree.toPrettyString(), RoadmapDto::class.java).right()
+    }
+
+    fun parseTest(response: String): EitherError<TestDto> {
+        val json = isolateJson(response)
+            ?: return JsonMappingException(response, TestDto::class.java).left()
+
+        return mapper.readValue(json, TestDto::class.java).right()
+    }
 
     fun <T> handleResponse(
         response: String,

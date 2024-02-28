@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ua.torchers.roadmapai.account.model.Account
-import ua.torchers.roadmapai.roadmap.AccessException
-import ua.torchers.roadmapai.roadmap.LargePageSizeException
-import ua.torchers.roadmapai.roadmap.NoCachedValue
+import ua.torchers.roadmapai.roadmap.*
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapEntity
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
+import ua.torchers.roadmapai.roadmap.scaffold.model.TestDto
 import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
+import ua.torchers.roadmapai.roadmap.scaffold.service.TestCreationService
 import ua.torchers.roadmapai.shared.isNotInBound
 import java.time.Duration
 import java.util.*
@@ -24,7 +24,8 @@ class RoadmapService(
     @Value("\${roadmap.cache.expiration}") private val expirationInMinutes: Long,
     private val roadmapRepo: RoadmapRepository,
     private val roadmapCache: RedisTemplate<String, RoadmapCached>,
-    private val rmCreationService: RoadmapCreationService
+    private val rmCreationService: RoadmapCreationService,
+    private val testCreationService: TestCreationService
 ) {
     private val cacheExpiration = Duration.ofMinutes(expirationInMinutes)
 
@@ -48,6 +49,7 @@ class RoadmapService(
     fun getRoadmap(id: String, requester: Account): Mono<RoadmapEntity> {
         return roadmapRepo
             .findById(id)
+            .switchIfEmpty(Mono.error(RoadmapNotFound(id)))
             .flatMap {
                 if (it.owner != requester) Mono.error(AccessException(requester, it))
                 else Mono.just(it)
@@ -76,5 +78,19 @@ class RoadmapService(
 
     fun requestRoadmap(learningTarget: String): Mono<RoadmapCached> {
         return rmCreationService.createRoadmap(learningTarget).map(::saveToCache)
+    }
+
+    fun requestTest(roadmapId: String, nodeId: String): Mono<TestDto> {
+        return roadmapRepo.findById(roadmapId)
+            .switchIfEmpty(Mono.error(RoadmapNotFound(roadmapId)))
+            .flatMap { roadmap ->
+                val node = roadmap.nodes.find { it.id.toHexString() == nodeId }
+                    ?: return@flatMap Mono.error(RoadmapNodeNotFound(roadmap, nodeId))
+
+                val content = node.content
+                    ?: return@flatMap Mono.error(RoadmapContentNotGenerated(roadmap, node))
+
+                testCreationService.generateTestFor(roadmap, content)
+            }
     }
 }

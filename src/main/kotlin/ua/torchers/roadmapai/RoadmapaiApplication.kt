@@ -3,7 +3,6 @@ package ua.torchers.roadmapai
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -12,13 +11,12 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.GenericToStringSerializer
 import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.reactive.config.EnableWebFlux
+import reactor.core.publisher.Mono
 import ua.torchers.roadmapai.config.SecurityConfig
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 

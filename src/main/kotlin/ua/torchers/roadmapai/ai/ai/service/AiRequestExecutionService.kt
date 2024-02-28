@@ -5,7 +5,7 @@ import arrow.core.left
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
 import com.theokanning.openai.completion.chat.ChatCompletionResult
 import org.springframework.stereotype.Service
-import ua.torchers.roadmapai.ai.ai.NoServiceException
+import ua.torchers.roadmapai.ai.NoServiceException
 import ua.torchers.roadmapai.ai.ai.model.AiService
 import ua.torchers.roadmapai.ai.ai.model.EndpointChooser
 import ua.torchers.roadmapai.shared.EitherError

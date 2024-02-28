@@ -1,32 +1,14 @@
 package ua.torchers.roadmapai.roadmap
 
-import org.springframework.data.domain.Pageable
-import ua.torchers.roadmapai.account.model.Account
-import ua.torchers.roadmapai.ai.ai.model.AiService
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
-import ua.torchers.roadmapai.shared.MAX_PAGE_SIZE
-
-/**
- * Get rid of most of this exceptions and replace them with NotFoundException
- */
-class UnclearAiAnswerException(msg: String) : Exception(msg)
-
-class NoCachedValue(msg: String) : Exception(msg)
-
-class NoChoicesFromAi(model: AiService) : Exception("Model $model returned empty choices")
-
-class AccessException(account: Account, obj: Any) : Exception("${account.username} can`t access $obj")
-
-class LargePageSizeException(pageable: Pageable, maxPageSize: Int = MAX_PAGE_SIZE) :
-    Exception("Page size ${pageable.pageSize} is too big, page size should be <= $maxPageSize")
-
-class JsonMappingException(aiAnswer: String, objectClass: Class<*>) :
-    Exception("Can`t map  answer to ${objectClass.name}, ai answer: $aiAnswer")
+import ua.torchers.roadmapai.shared.NotFoundException
 
 class RoadmapContentNotGenerated(roadmap: Roadmap, node: Roadmap.RmNode) :
     Exception("Roadmap`s ${roadmap.name} $node don`t have content yet")
 
-class RoadmapNodeNotFound(roadmap: Roadmap, nodeId: String) :
-    Exception("Roadmap ${roadmap.name} don`t have node with id $nodeId")
+val roadmapNotFoundException = NotFoundException("Roadmap")
 
-class RoadmapNotFound(roadmapId: String) : Exception("No roadmap with id ${roadmapId}")
+fun <T : Roadmap> Mono<T>.orRoadmapNotFound() = this.switchIfEmpty(Mono.error(roadmapNotFoundException))
+fun <T : Roadmap> Flux<T>.orRoadmapNotFound() = this.switchIfEmpty(Flux.error(roadmapNotFoundException))

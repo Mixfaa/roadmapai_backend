@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
+import ua.torchers.roadmapai.ai.*
 import ua.torchers.roadmapai.ai.ai.*
 import ua.torchers.roadmapai.ai.ai.model.AiService
 import ua.torchers.roadmapai.ai.ai.model.AiServiceConfig

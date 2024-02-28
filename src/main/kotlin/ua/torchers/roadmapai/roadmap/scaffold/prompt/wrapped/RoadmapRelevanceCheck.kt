@@ -3,7 +3,7 @@ package ua.torchers.roadmapai.roadmap.scaffold.prompt.wrapped
 import arrow.core.left
 import arrow.core.right
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
-import ua.torchers.roadmapai.roadmap.UnclearAiAnswerException
+import ua.torchers.roadmapai.ai.UnclearAiAnswerException
 import ua.torchers.roadmapai.roadmap.scaffold.model.Roadmap
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 import ua.torchers.roadmapai.shared.EitherError

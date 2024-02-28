@@ -7,16 +7,20 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import ua.torchers.roadmapai.account.AccessException
 import ua.torchers.roadmapai.account.model.Account
-import ua.torchers.roadmapai.roadmap.*
+import ua.torchers.roadmapai.roadmap.RoadmapContentNotGenerated
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapCached
 import ua.torchers.roadmapai.roadmap.business.model.RoadmapEntity
+import ua.torchers.roadmapai.roadmap.orRoadmapNotFound
+import ua.torchers.roadmapai.roadmap.roadmapNotFoundException
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
 import ua.torchers.roadmapai.roadmap.scaffold.model.TestDto
 import ua.torchers.roadmapai.roadmap.scaffold.service.RoadmapCreationService
 import ua.torchers.roadmapai.roadmap.scaffold.service.TestCreationService
+import ua.torchers.roadmapai.shared.LargePageSizeException
+import ua.torchers.roadmapai.shared.NotFoundException
 import ua.torchers.roadmapai.shared.isNotInBound
-import ua.torchers.roadmapai.shared.orRoadmapNotFound
 import java.time.Duration
 import java.util.*
 
@@ -46,7 +50,7 @@ class RoadmapService(
     @PreAuthorize("#requester.username == authentication.name")
     fun saveFromCache(id: String, requester: Account): Mono<RoadmapEntity> {
         val roadmapCached = roadmapCache.opsForList().leftPop(id)
-            ?: return Mono.error(NoCachedValue("Can`t find cached roadmap with id $id"))
+            ?: return Mono.error(roadmapNotFoundException)
 
         return roadmapRepo.save(RoadmapEntity(roadmapCached, requester))
     }
@@ -55,7 +59,7 @@ class RoadmapService(
     fun getRoadmap(id: String, requester: Account): Mono<RoadmapEntity> {
         return roadmapRepo
             .findById(id)
-            .switchIfEmpty(Mono.error(RoadmapNotFound(id)))
+            .orRoadmapNotFound()
             .flatMap {
                 if (it.owner != requester) Mono.error(AccessException(requester, it))
                 else Mono.just(it)
@@ -91,7 +95,7 @@ class RoadmapService(
             .orRoadmapNotFound()
             .flatMap { roadmap ->
                 val node = roadmap.nodes.find { it.id.toHexString() == nodeId }
-                    ?: return@flatMap Mono.error(RoadmapNodeNotFound(roadmap, nodeId))
+                    ?: return@flatMap Mono.error(NotFoundException("Node $nodeId not found in roadmap ($roadmapId)"))
 
                 val content = node.content
                     ?: return@flatMap Mono.error(RoadmapContentNotGenerated(roadmap, node))

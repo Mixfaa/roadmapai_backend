@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import com.theokanning.openai.completion.chat.ChatCompletionRequest
+import ua.torchers.roadmapai.ai.UnclearAiAnswerException
 import ua.torchers.roadmapai.ai.ai.model.AiService
-import ua.torchers.roadmapai.roadmap.JsonMappingException
 import ua.torchers.roadmapai.roadmap.scaffold.model.RoadmapDto
-import ua.torchers.roadmapai.roadmap.scaffold.model.Test
 import ua.torchers.roadmapai.roadmap.scaffold.model.TestDto
 import ua.torchers.roadmapai.roadmap.scaffold.prompt.StaticPromptInjectionTarget
 import ua.torchers.roadmapai.shared.EitherError
@@ -37,7 +36,7 @@ object ConvertToJson : StaticPromptInjectionTarget("convert_to_json") {
 
     fun parseRoadmap(response: String, usedService: AiService): EitherError<RoadmapDto> {
         val json = isolateJson(response)
-            ?: return JsonMappingException(response, RoadmapDto::class.java).left()
+            ?: return UnclearAiAnswerException("Can`t isolate json from ai answer ($response)").left()
 
         val jsonTree = mapper.readTree(json)
         val props = jsonTree.properties()
@@ -49,7 +48,7 @@ object ConvertToJson : StaticPromptInjectionTarget("convert_to_json") {
 
     fun parseTest(response: String): EitherError<TestDto> {
         val json = isolateJson(response)
-            ?: return JsonMappingException(response, TestDto::class.java).left()
+            ?: return UnclearAiAnswerException("Can`t isolate json from ai answer ($response)").left()
 
         return mapper.readValue(json, TestDto::class.java).right()
     }

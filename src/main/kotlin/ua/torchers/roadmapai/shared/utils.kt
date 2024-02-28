@@ -25,7 +25,4 @@ fun Pageable.isNotInBound(maxPageSize: Int = MAX_PAGE_SIZE): Boolean {
 
 fun ChatCompletionResult.firstChoiceText(): String? = this.choices.firstOrNull()?.message?.content
 
-private val roadmapNotFoundException = NotFoundException("Roadmap")
-fun <T : Roadmap> Mono<T>.orRoadmapNotFound() = this.switchIfEmpty(Mono.error(roadmapNotFoundException))
-fun <T : Roadmap> Flux<T>.orRoadmapNotFound() = this.switchIfEmpty(Flux.error(roadmapNotFoundException))
 
